@@ -1,6 +1,5 @@
-// استيراد Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
 // إعدادات Firebase
 const firebaseConfig = {
@@ -19,34 +18,44 @@ const database = getDatabase(app);
 
 let userLocation = null;
 
-// تهيئة الخريطة
+// إعداد الخريطة
 const map = L.map("map").setView([51.505, -0.09], 13);
 
-// إضافة الطبقات باستخدام OpenStreetMap
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
 }).addTo(map);
 
-// تحديد موقع المستخدم
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      userLocation = [position.coords.latitude, position.coords.longitude];
-      map.setView(userLocation, 13);
+let marker;
 
-      // وضع علامة على موقع المستخدم
-      L.marker(userLocation).addTo(map).bindPopup("موقعك الحالي").openPopup();
-    },
-    () => {
-      alert("تعذر تحديد الموقع. يرجى تفعيل GPS.");
-    }
-  );
-} else {
-  alert("المتصفح لا يدعم تحديد الموقع.");
-}
+navigator.geolocation.getCurrentPosition(
+  (position) => {
+    userLocation = [position.coords.latitude, position.coords.longitude];
+    map.setView(userLocation, 13);
 
-// التعامل مع زر طلب الصيانة
+    marker = L.marker(userLocation, { draggable: true })
+      .addTo(map)
+      .bindPopup("موقعك الحالي")
+      .openPopup();
+
+    marker.on("dragend", (e) => {
+      userLocation = [e.target.getLatLng().lat, e.target.getLatLng().lng];
+    });
+  },
+  () => {
+    alert("تعذر تحديد الموقع. يرجى تفعيل GPS.");
+  }
+);
+
+// إرسال طلب صيانة
 document.getElementById("requestButton").addEventListener("click", () => {
+  const description = document.getElementById("description").value;
+  const phone = document.getElementById("phone").value;
+
+  if (!description || !phone) {
+    alert("يرجى ملء جميع الحقول المطلوبة!");
+    return;
+  }
+
   if (userLocation) {
     const requestRef = ref(database, "requests/" + Date.now());
     set(requestRef, {
@@ -54,6 +63,8 @@ document.getElementById("requestButton").addEventListener("click", () => {
         lat: userLocation[0],
         lng: userLocation[1],
       },
+      description,
+      phone,
       timestamp: new Date().toISOString(),
     })
       .then(() => {
@@ -64,5 +75,25 @@ document.getElementById("requestButton").addEventListener("click", () => {
       });
   } else {
     alert("يرجى تفعيل الموقع أولاً.");
+  }
+});
+
+// عرض الطلبات السابقة
+const requestsRef = ref(database, "requests");
+onValue(requestsRef, (snapshot) => {
+  const requests = snapshot.val();
+  const container = document.getElementById("requestsContainer");
+  container.innerHTML = "<h3>الطلبات السابقة</h3>";
+
+  for (const id in requests) {
+    const request = requests[id];
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <p><strong>الوصف:</strong> ${request.description}</p>
+      <p><strong>رقم الهاتف:</strong> ${request.phone}</p>
+      <p><strong>الموقع:</strong> ${request.location.lat}, ${request.location.lng}</p>
+      <p><strong>التاريخ:</strong> ${new Date(request.timestamp).toLocaleString()}</p>
+    `;
+    container.appendChild(div);
   }
 });
