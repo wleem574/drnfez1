@@ -2,7 +2,7 @@ import L from "https://unpkg.com/leaflet@1.9.3/dist/leaflet.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
 import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
-// إعداد Firebase
+// إعدادات Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBMa1ZBBH6Xdi-MqqG4-B8z2oBtOzb3MfA",
   authDomain: "drnfeez-c4037.firebaseapp.com",
@@ -12,18 +12,23 @@ const firebaseConfig = {
   messagingSenderId: "912450814298",
   appId: "1:912450814298:web:2c1cd95abbda31e3a4b363",
 };
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
 
-let userLocation = null;
-let currentRequestRef = null;
+// تهيئة Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+let map, marker, userLocation, currentRequestRef;
 
 // إعداد الخريطة
-const map = L.map("map").setView([33.3152, 44.3661], 13);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
-let marker;
+function initMap() {
+  map = L.map("map").setView([33.3152, 44.3661], 13); // بغداد
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap contributors',
+  }).addTo(map);
+}
 
-// تحديد الموقع
+// تحديد الموقع الجغرافي
 function getUserLocation() {
   if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(
@@ -32,15 +37,18 @@ function getUserLocation() {
         userLocation = [latitude, longitude];
         map.setView(userLocation, 15);
         if (!marker) {
-          marker = L.marker(userLocation, { draggable: true }).addTo(map).bindPopup("موقعك الحالي").openPopup();
+          marker = L.marker(userLocation, { draggable: true })
+            .addTo(map)
+            .bindPopup("موقعك الحالي")
+            .openPopup();
         } else {
           marker.setLatLng(userLocation).openPopup();
         }
       },
-      () => alert("تعذر الوصول إلى الموقع، يرجى المحاولة مرة أخرى.")
+      () => alert("تعذر تحديد الموقع. يرجى السماح بخدمة الموقع.")
     );
   } else {
-    alert("هذا الجهاز لا يدعم خاصية تحديد الموقع.");
+    alert("المتصفح لا يدعم خاصية الموقع الجغرافي.");
   }
 }
 
@@ -60,12 +68,13 @@ function sendRequest() {
   }
 
   const requestId = Date.now().toString();
-  currentRequestRef = ref(db, `requests/${requestId}`);
+  currentRequestRef = ref(database, `requests/${requestId}`);
   set(currentRequestRef, {
     description,
     phone,
     location: { lat: userLocation[0], lng: userLocation[1] },
     status: "pending",
+    timestamp: new Date().toISOString(),
   });
 
   document.getElementById("mainContent").style.display = "none";
@@ -90,12 +99,22 @@ function resetApp() {
   if (currentRequestRef) remove(currentRequestRef);
 }
 
+// إعادة ضبط الخريطة إلى موقع المستخدم
+function centerMapOnUser() {
+  if (userLocation) {
+    map.setView(userLocation, 15);
+  } else {
+    alert("لم يتم تحديد موقعك بعد. يرجى النقر على 'تحديد موقعي'.");
+  }
+}
+
 // إلغاء الطلب
 document.getElementById("cancelRequestButton").addEventListener("click", resetApp);
 
-// ربط الوظائف بالأزرار
-document.getElementById("currentLocationButton").addEventListener("click", getUserLocation);
-document.getElementById("requestButton").addEventListener("click", sendRequest);
+// استدعاء الوظائف عند التحميل
+initMap();
 
-// طلب الموقع عند بدء التشغيل
-getUserLocation();
+// ربط الأحداث بالأزرار
+document.getElementById("currentLocationButton").addEventListener("click", getUserLocation);
+document.getElementById("centerMapButton").addEventListener("click", centerMapOnUser);
+document.getElementById("requestButton").addEventListener("click", sendRequest);
