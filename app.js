@@ -19,13 +19,14 @@ const database = getDatabase(app);
 let userLocation = null;
 let marker;
 
-// إعداد الخريطة
-const map = L.map("map").setView([51.505, -0.09], 13);
+// إعداد الخريطة على بغداد
+const map = L.map("map").setView([33.3152, 44.3661], 13);
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
 }).addTo(map);
 
+// طلب الوصول للموقع
 navigator.geolocation.getCurrentPosition(
   (position) => {
     userLocation = [position.coords.latitude, position.coords.longitude];
@@ -41,11 +42,11 @@ navigator.geolocation.getCurrentPosition(
     });
   },
   () => {
-    alert("تعذر تحديد الموقع. يرجى تفعيل GPS.");
+    alert("يرجى السماح بالوصول إلى الموقع.");
   }
 );
 
-// تحديد الموقع عند النقر على "موقعي الآن"
+// زر تحديد موقعي الآن
 document.getElementById("currentLocationButton").addEventListener("click", () => {
   navigator.geolocation.getCurrentPosition(
     (position) => {
@@ -66,8 +67,8 @@ document.getElementById("requestButton").addEventListener("click", () => {
   const description = document.getElementById("description").value;
   const phone = document.getElementById("phone").value;
 
-  if (!description || !phone) {
-    alert("يرجى ملء جميع الحقول المطلوبة!");
+  if (!description || !phone.match(/^[0-9]{10}$/)) {
+    alert("يرجى إدخال وصف المشكلة ورقم هاتف صحيح!");
     return;
   }
 
@@ -85,18 +86,24 @@ document.getElementById("requestButton").addEventListener("click", () => {
       phone,
       status: "pending",
       timestamp: new Date().toISOString(),
-    })
-      .then(() => {
-        setTimeout(() => {
-          alert("تم قبول طلبك!");
-          document.getElementById("mainContent").style.display = "block";
-          document.getElementById("waitingScreen").style.display = "none";
-        }, 5000); // محاكاة الانتظار
-      })
-      .catch((error) => {
-        console.error("خطأ أثناء إرسال الطلب:", error);
-      });
+    });
+
+    // مراقبة حالة الطلب
+    onValue(requestRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data && data.status === "approved") {
+        alert("تم قبول طلبك!");
+        document.getElementById("mainContent").style.display = "block";
+        document.getElementById("waitingScreen").style.display = "none";
+      }
+    });
   } else {
     alert("يرجى تحديد موقعك أولاً.");
   }
+});
+
+// إلغاء الطلب
+document.getElementById("cancelRequestButton").addEventListener("click", () => {
+  document.getElementById("mainContent").style.display = "block";
+  document.getElementById("waitingScreen").style.display = "none";
 });
