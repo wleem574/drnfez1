@@ -1,5 +1,6 @@
+import L from "https://unpkg.com/leaflet@1.9.3/dist/leaflet.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
 // إعدادات Firebase
 const firebaseConfig = {
@@ -26,41 +27,53 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
 }).addTo(map);
 
-// طلب الوصول للموقع
-navigator.geolocation.getCurrentPosition(
-  (position) => {
-    userLocation = [position.coords.latitude, position.coords.longitude];
-    map.setView(userLocation, 13);
+function getUserLocation() {
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        userLocation = [position.coords.latitude, position.coords.longitude];
+        map.setView(userLocation, 13);
 
-    marker = L.marker(userLocation, { draggable: true })
-      .addTo(map)
-      .bindPopup("موقعك الحالي")
-      .openPopup();
-
-    marker.on("dragend", (e) => {
-      userLocation = [e.target.getLatLng().lat, e.target.getLatLng().lng];
-    });
-  },
-  () => {
-    alert("يرجى السماح بالوصول إلى الموقع.");
-  }
-);
-
-// زر تحديد موقعي الآن
-document.getElementById("currentLocationButton").addEventListener("click", () => {
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      userLocation = [position.coords.latitude, position.coords.longitude];
-      map.setView(userLocation, 13);
-      if (marker) {
-        marker.setLatLng(userLocation).openPopup();
+        if (!marker) {
+          marker = L.marker(userLocation, { draggable: true })
+            .addTo(map)
+            .bindPopup("موقعك الحالي")
+            .openPopup();
+        } else {
+          marker.setLatLng(userLocation).openPopup();
+        }
+      },
+      (error) => {
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            alert("يرجى السماح بالوصول إلى الموقع.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            alert("تعذر تحديد الموقع. تأكد من تشغيل GPS.");
+            break;
+          case error.TIMEOUT:
+            alert("انتهت مهلة تحديد الموقع. حاول مرة أخرى.");
+            break;
+          default:
+            alert("حدث خطأ غير متوقع أثناء تحديد الموقع.");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
       }
-    },
-    () => {
-      alert("تعذر تحديد الموقع.");
-    }
-  );
-});
+    );
+  } else {
+    alert("المتصفح لا يدعم تحديد الموقع.");
+  }
+}
+
+// طلب الموقع عند النقر على زر "موقعي الآن"
+document.getElementById("currentLocationButton").addEventListener("click", getUserLocation);
+
+// طلب الموقع عند تحميل الصفحة
+getUserLocation();
 
 // إرسال طلب صيانة
 document.getElementById("requestButton").addEventListener("click", () => {
@@ -100,10 +113,4 @@ document.getElementById("requestButton").addEventListener("click", () => {
   } else {
     alert("يرجى تحديد موقعك أولاً.");
   }
-});
-
-// إلغاء الطلب
-document.getElementById("cancelRequestButton").addEventListener("click", () => {
-  document.getElementById("mainContent").style.display = "block";
-  document.getElementById("waitingScreen").style.display = "none";
 });
