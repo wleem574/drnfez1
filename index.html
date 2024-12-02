@@ -3,139 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DRNFEEZ</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f9;
-    }
-
-    header {
-      background-color: #007BFF;
-      color: white;
-      text-align: center;
-      padding: 20px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-
-    header p {
-      margin: 5px 0 0;
-      font-size: 18px;
-    }
-
-    #map {
-      height: 60vh;
-      width: 100%;
-    }
-
-    #requestForm {
-      padding: 15px;
-      margin: 10px;
-      background-color: white;
-      border-radius: 5px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    #requestForm label {
-      display: block;
-      margin: 10px 0 5px;
-      font-weight: bold;
-    }
-
-    #requestForm textarea,
-    #requestForm input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    #waitingScreen {
-      display: none;
-      text-align: center;
-      padding: 20px;
-      background-color: rgba(255, 255, 255, 0.95);
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .loader {
-      margin: 20px auto;
-      border: 5px solid #f3f3f3;
-      border-top: 5px solid #007BFF;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    @media (max-width: 768px) {
-      button {
-        font-size: 14px;
-      }
-    }
-  </style>
+  <title>تطبيق الزبون - درتفيز</title>
+  <link rel="stylesheet" href="https://raw.githubusercontent.com/wleem574/drnfez1/main/customer.css">
 </head>
 <body>
   <header>
-    <h1>DRNFEEZ</h1>
-    <p>أهلاً بك في تطبيق خدمات الصيانة السلس والمتطور</p>
+    <h1>تطبيق الزبون</h1>
   </header>
-
-  <main id="mainContent">
-    <div id="map"></div>
-
-    <div id="requestForm">
-      <label for="description">وصف المشكلة:</label>
-      <textarea id="description" placeholder="اكتب وصف المشكلة هنا..." required></textarea>
-
-      <label for="phone">رقم الهاتف:</label>
-      <input type="tel" id="phone" placeholder="أدخل رقم الهاتف" required>
-
-      <button id="currentLocationButton">تحديد موقعي</button>
-      <button id="requestButton">إرسال طلب الصيانة</button>
-    </div>
-  </main>
-
-  <div id="waitingScreen">
-    <h2>DRNFEEZ</h2>
-    <p>جاري البحث عن مختص قريب...</p>
-    <div class="loader"></div>
-    <button id="cancelRequestButton">إلغاء الطلب</button>
-  </div>
-
-  <script type="module" src="app.js"></script>
+  <div id="map"></div>
+  <form>
+    <label for="description">وصف المشكلة:</label>
+    <textarea id="description"></textarea>
+    <label for="phone">رقم الهاتف:</label>
+    <input type="tel" id="phone">
+    <button id="currentLocationButton">تحديد موقعي</button>
+    <button id="requestButton">إرسال الطلب</button>
+  </form>
+  <script type="module" src="https://raw.githubusercontent.com/wleem574/drnfez1/main/customer.js"></script>
 </body>
 </html>
