@@ -1,106 +1,10 @@
-/* إعدادات عامة */
-body {
-  font-family: Arial, sans-serif;
+body, html {
   margin: 0;
   padding: 0;
-}
-
-header {
-  background-color: #007BFF;
-  color: white;
-  text-align: center;
-  padding: 15px;
-}
-
-header h1 {
-  margin: 0;
-  font-size: 24px;
-}
-
-header p {
-  margin: 5px 0 0;
-  font-size: 16px;
+  font-family: Arial, sans-serif;
 }
 
 #map {
-  height: 50vh;
+  height: 60vh;
   width: 100%;
-  border: 1px solid #ccc;
-}
-
-#requestForm {
-  margin: 10px;
-}
-
-#requestForm label {
-  display: block;
-  margin: 10px 0 5px;
-  font-weight: bold;
-}
-
-#requestForm textarea, #requestForm input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-button {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-/* واجهة الانتظار */
-#waitingScreen {
-  text-align: center;
-  padding: 20px;
-  background-color: white;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-#waitingScreen h2 {
-  font-size: 36px;
-  color: #007BFF;
-  margin-bottom: 20px;
-}
-
-.loader {
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid #007BFF;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* تحسين للهاتف */
-@media (max-width: 768px) {
-  #map {
-    height: 40vh;
-  }
-
-  button {
-    font-size: 14px;
-  }
 }
