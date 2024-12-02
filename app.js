@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
+import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
 
 // إعدادات Firebase
 const firebaseConfig = {
@@ -17,6 +17,7 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 let userLocation = null;
+let marker;
 
 // إعداد الخريطة
 const map = L.map("map").setView([51.505, -0.09], 13);
@@ -24,8 +25,6 @@ const map = L.map("map").setView([51.505, -0.09], 13);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
 }).addTo(map);
-
-let marker;
 
 navigator.geolocation.getCurrentPosition(
   (position) => {
@@ -46,6 +45,22 @@ navigator.geolocation.getCurrentPosition(
   }
 );
 
+// تحديد الموقع عند النقر على "موقعي الآن"
+document.getElementById("currentLocationButton").addEventListener("click", () => {
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      userLocation = [position.coords.latitude, position.coords.longitude];
+      map.setView(userLocation, 13);
+      if (marker) {
+        marker.setLatLng(userLocation).openPopup();
+      }
+    },
+    () => {
+      alert("تعذر تحديد الموقع.");
+    }
+  );
+});
+
 // إرسال طلب صيانة
 document.getElementById("requestButton").addEventListener("click", () => {
   const description = document.getElementById("description").value;
@@ -57,6 +72,9 @@ document.getElementById("requestButton").addEventListener("click", () => {
   }
 
   if (userLocation) {
+    document.getElementById("mainContent").style.display = "none";
+    document.getElementById("waitingScreen").style.display = "block";
+
     const requestRef = ref(database, "requests/" + Date.now());
     set(requestRef, {
       location: {
@@ -65,35 +83,20 @@ document.getElementById("requestButton").addEventListener("click", () => {
       },
       description,
       phone,
+      status: "pending",
       timestamp: new Date().toISOString(),
     })
       .then(() => {
-        alert("تم إرسال طلب الصيانة بنجاح!");
+        setTimeout(() => {
+          alert("تم قبول طلبك!");
+          document.getElementById("mainContent").style.display = "block";
+          document.getElementById("waitingScreen").style.display = "none";
+        }, 5000); // محاكاة الانتظار
       })
       .catch((error) => {
         console.error("خطأ أثناء إرسال الطلب:", error);
       });
   } else {
-    alert("يرجى تفعيل الموقع أولاً.");
-  }
-});
-
-// عرض الطلبات السابقة
-const requestsRef = ref(database, "requests");
-onValue(requestsRef, (snapshot) => {
-  const requests = snapshot.val();
-  const container = document.getElementById("requestsContainer");
-  container.innerHTML = "<h3>الطلبات السابقة</h3>";
-
-  for (const id in requests) {
-    const request = requests[id];
-    const div = document.createElement("div");
-    div.innerHTML = `
-      <p><strong>الوصف:</strong> ${request.description}</p>
-      <p><strong>رقم الهاتف:</strong> ${request.phone}</p>
-      <p><strong>الموقع:</strong> ${request.location.lat}, ${request.location.lng}</p>
-      <p><strong>التاريخ:</strong> ${new Date(request.timestamp).toLocaleString()}</p>
-    `;
-    container.appendChild(div);
+    alert("يرجى تحديد موقعك أولاً.");
   }
 });
