@@ -5,32 +5,21 @@ body {
   padding: 0;
 }
 
-h2 {
-  text-align: center;
-  margin: 20px 0;
-}
-
-nav {
+header {
   background-color: #007BFF;
-  padding: 10px;
-}
-
-nav ul {
-  display: flex;
-  justify-content: center;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-nav ul li {
-  margin: 0 15px;
-}
-
-nav ul li a {
   color: white;
-  text-decoration: none;
-  font-weight: bold;
+  text-align: center;
+  padding: 15px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+header p {
+  margin: 5px 0 0;
+  font-size: 16px;
 }
 
 #map {
@@ -40,7 +29,7 @@ nav ul li a {
 }
 
 #requestForm {
-  margin: 20px;
+  margin: 10px;
 }
 
 #requestForm label {
@@ -57,40 +46,61 @@ nav ul li a {
   border-radius: 5px;
 }
 
-#requestButton {
+button {
   display: block;
-  padding: 10px 20px;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
   background-color: #007BFF;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 16px;
-  margin-top: 10px;
 }
 
-#requestButton:hover {
+button:hover {
   background-color: #0056b3;
 }
 
-#requestsContainer {
-  margin: 20px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-}
-
-#requestsContainer div {
-  margin-bottom: 15px;
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-footer {
+/* واجهة الانتظار */
+#waitingScreen {
   text-align: center;
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #f1f1f1;
-  color: #555;
+  padding: 20px;
+  background-color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#waitingScreen h2 {
+  font-size: 36px;
+  color: #007BFF;
+  margin-bottom: 20px;
+}
+
+.loader {
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #007BFF;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* تحسين للهاتف */
+@media (max-width: 768px) {
+  #map {
+    height: 40vh;
+  }
+
+  button {
+    font-size: 14px;
+  }
 }
