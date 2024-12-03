@@ -20,7 +20,7 @@ const database = getDatabase(app);
 mapboxgl.accessToken = 'pk.eyJ1Ijoid2xlZW01NzQiLCJhIjoiY200N3F1Znh4MDkwZjJrc2Rlamk4MmN2ZSJ9.53hYWnH7FK-7AyorhtRG1g';
 const map = new mapboxgl.Map({
     container: 'map', // العنصر الذي سيتم عرض الخريطة فيه
-    style: 'mapbox://styles/mapbox/streets-v11', // نمط الخريطة
+    style: 'mapbox://styles/wleem574/cm47r6kwa00dt01r1bedmc99r', // نمط الخريطة
     center: [44.3661, 33.3152], // إحداثيات الخريطة (longitude, latitude)
     zoom: 13 // مستوى التكبير
 });
