@@ -46,8 +46,11 @@ header {
 
 #map {
   height: 50vh;
+  width: 100%; /* عرض كامل العنصر */
   margin: 20px 0;
   border-radius: 10px;
+}
+
 }
 
 form {
