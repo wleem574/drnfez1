@@ -3,11 +3,11 @@ import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/9.23.
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBMa1ZBBH6Xdi-MqqG4-B8z2oBtOzb3MfA",
+  apiKey: "AIzaSyBMa...",
   authDomain: "drnfeez-c4037.firebaseapp.com",
   databaseURL: "https://drnfeez-c4037-default-rtdb.firebaseio.com",
   projectId: "drnfeez-c4037",
-  storageBucket: "drnfeez-c4037.firebasestorage.app",
+  storageBucket: "drnfeez-c4037.appspot.com",
   messagingSenderId: "912450814298",
   appId: "1:912450814298:web:2c1cd95abbda31e3a4b363"
 };
@@ -16,27 +16,35 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// Initialize map
-const map = L.map('map').setView([33.3152, 44.3661], 13); // Baghdad coordinates
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+// Mapbox setup
+mapboxgl.accessToken = 'pk.eyJ1Ijoid2xlZW01NzQiLCJhIjoiY200N3F1Znh4MDkwZjJrc2Rlamk4MmN2ZSJ9.53hYWnH7FK-7AyorhtRG1g';
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/wleem574/cm47r6kwa00dt01r1bedmc99r',
+  center: [44.3661, 33.3152],
+  zoom: 13
+});
 
 let customerLocation = null;
 
 // Get current location
 document.getElementById('currentLocationButton').addEventListener('click', () => {
-  map.locate({ setView: true, maxZoom: 16 });
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+      customerLocation = { lat: latitude, lng: longitude };
 
-  map.on('locationfound', (e) => {
-    customerLocation = e.latlng;
-    L.marker(customerLocation).addTo(map)
-      .bindPopup("موقعك الحالي").openPopup();
-  });
+      new mapboxgl.Marker()
+        .setLngLat([longitude, latitude])
+        .setPopup(new mapboxgl.Popup().setText("موقعك الحالي"))
+        .addTo(map);
 
-  map.on('locationerror', () => {
-    alert("تعذر تحديد الموقع. يرجى تمكين GPS.");
-  });
+      map.flyTo({ center: [longitude, latitude], zoom: 15 });
+    },
+    () => {
+      alert("تعذر تحديد الموقع. يرجى تمكين GPS.");
+    }
+  );
 });
 
 // Submit form
@@ -54,14 +62,10 @@ document.getElementById('customerForm').addEventListener('submit', (e) => {
   const requestData = {
     description,
     phone,
-    location: {
-      lat: customerLocation.lat,
-      lng: customerLocation.lng
-    },
+    location: customerLocation,
     timestamp: new Date().toISOString()
   };
 
-  // Save data to Firebase
   const requestsRef = ref(database, 'requests');
   push(requestsRef, requestData)
     .then(() => {
@@ -69,7 +73,7 @@ document.getElementById('customerForm').addEventListener('submit', (e) => {
       document.getElementById('customerForm').reset();
     })
     .catch((error) => {
-      alert("حدث خطأ أثناء إرسال الطلب. يرجى المحاولة لاحقاً.");
+      alert("حدث خطأ أثناء إرسال الطلب.");
       console.error(error);
     });
 });
