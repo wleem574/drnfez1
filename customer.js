@@ -44,7 +44,9 @@ function getUserLocation() {
           marker.setLatLng(userLocation).openPopup();
         }
       },
-      () => alert("تعذر تحديد الموقع. يرجى السماح بخدمة الموقع.")
+      (error) => {
+        alert("تعذر تحديد الموقع. يرجى السماح بخدمة الموقع.");
+      }
     );
   } else {
     alert("جهازك لا يدعم خاصية الموقع الجغرافي.");
